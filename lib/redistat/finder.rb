@@ -181,13 +181,18 @@ module Redistat
       col = Collection.new(options)
       col.total = Result.new(options)
       col << col.total
-      build_date_sets.each do |set|
-        sum = Result.new
-        sum = summarize_add_keys(set[:add], key, sum)
-        sum = summarize_rem_keys(set[:rem], key, sum)
-        sum.each do |k, v|
-          col.total.set_or_incr(k, v.to_i)
-        end
+
+      r = build_date_sets.inject({}) do |set, hash|
+        hash[:add] = Array(hash[:add]) + Array(set[:add])
+        hash[:rem] = Array(hash[:rem]) + Array(set[:rem])
+        hash
+      end
+
+      sum = Result.new
+      sum = summarize_add_keys(r[:add], key, sum)
+      sum = summarize_rem_keys(r[:rem], key, sum)
+      sum.each do |k, v|
+        col.total.set_or_incr(k, v.to_i)
       end
       col
     end
@@ -210,20 +215,25 @@ module Redistat
       Key.new(options[:scope], options[:label])
     end
 
-    def summarize_add_keys(sets, key, sum)
-      sets.each do |date|
-        db.hgetall("#{key.prefix}#{date}").each do |k, v|
-          sum.set_or_incr(k, v.to_i)
+    def find_sets(sets, key)
+      result = db.pipelined do
+        sets.map do |date|
+          db.hgetall("#{key.prefix}#{date}")
         end
+      end
+      result
+    end
+
+    def summarize_add_keys(sets, key, sum)
+      find_sets(sets, key).each do |hash|
+        hash.each { |k,v| sum.set_or_incr(k, v.to_i) }
       end
       sum
     end
 
     def summarize_rem_keys(sets, key, sum)
-      sets.each do |date|
-        db.hgetall("#{key.prefix}#{date}").each do |k, v|
-          sum.set_or_incr(k, -v.to_i)
-        end
+      find_sets(sets, key).each do |hash|
+        hash.each { |k,v| sum.set_or_incr(k, -v.to_i) }
       end
       sum
     end

@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'time_ext', '>= 0.2.9'
 
   s.add_development_dependency 'rake', '>= 0.8.7'
-  s.add_development_dependency 'rspec', '>= 2.1.0'
+  s.add_development_dependency 'rspec', '< 3.0.0'
   s.add_development_dependency 'yard', '>= 0.6.3'
   s.add_development_dependency 'simplecov', '>= 0.6.1'
 end

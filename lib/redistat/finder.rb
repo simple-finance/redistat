@@ -158,20 +158,31 @@ module Redistat
 
     def find_by_interval
       raise InvalidOptions.new if !valid_options?
+      
       key = build_key
       col = Collection.new(options)
       col.total = Result.new(options)
-      build_date_sets.each do |set|
-        set[:add].each do |date|
-          result = Result.new
-          result.date = Date.new(date).to_time
-          db.hgetall("#{key.prefix}#{date}").each do |k, v|
-            result[k] = v
-            col.total.set_or_incr(k, v.to_i)
-          end
-          col << result
+
+      results = {}
+
+      db.pipelined do 
+        build_date_sets.each do |set|
+          set[:add].each { |date| results[date] = db.hgetall("#{key.prefix}#{date}") }
         end
       end
+
+      results.each do |date, rr|
+        result = Result.new
+        result.date = Date.new(date).to_time
+
+        rr.value.each do |k,v|
+          result[k] = v
+          col.total.set_or_incr(k, v.to_i)
+        end
+
+        col << result
+      end
+
       col
     end
 

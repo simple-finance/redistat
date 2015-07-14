@@ -158,14 +158,14 @@ module Redistat
 
     def find_by_interval
       raise InvalidOptions.new if !valid_options?
-      
+
       key = build_key
       col = Collection.new(options)
       col.total = Result.new(options)
 
       results = {}
 
-      db.pipelined do 
+      db.pipelined do
         build_date_sets.each do |set|
           set[:add].each { |date| results[date] = db.hgetall("#{key.prefix}#{date}") }
         end
@@ -227,6 +227,9 @@ module Redistat
     end
 
     def find_sets(sets, key)
+      sets = Array(sets)
+      return [] if sets.empty?
+
       result = db.pipelined do
         sets.map do |date|
           db.hgetall("#{key.prefix}#{date}")

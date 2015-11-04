@@ -127,31 +127,31 @@ describe Redistat::Model do
   end
 
   it "should connect to different Redis servers on a per-model basis" do
-    ModelHelper3.redis.client.db.should == 14
+    ModelHelper3.redis.client.db.should == REDIS_DB - 1
 
     ModelHelper3.store("sheep.black", {:count => 6, :weight => 461}, @time.hours_ago(4), :label_indexing => false)
     ModelHelper3.store("sheep.black", {:count => 2, :weight => 156}, @time, :label_indexing => false)
 
     db.keys("*").should be_empty
-    ModelHelper1.redis.keys("*").should be_empty
-    db("ModelHelper3").keys("*").should have(5).items
-    ModelHelper3.redis.keys("*").should have(5).items
+    ModelHelper1.redis.keys('*').should be_empty
+    db('ModelHelper3').keys('*').should have(5).items
+    ModelHelper3.redis.keys('*').should have(5).items
 
-    stats = ModelHelper3.fetch("sheep.black", @time.hours_ago(2), @time.hours_since(1), :label_indexing => false)
-    stats.total["count"].should == 2
-    stats.total["weight"].should == 156
-    stats = ModelHelper3.fetch("sheep.black", @time.hours_ago(5), @time.hours_since(1), :label_indexing => false)
+    stats = ModelHelper3.fetch('sheep.black', @time.hours_ago(2), @time.hours_since(1), :label_indexing => false)
+    stats.total['count'].should == 2
+    stats.total['weight'].should == 156
+    stats = ModelHelper3.fetch('sheep.black', @time.hours_ago(5), @time.hours_since(1), :label_indexing => false)
     stats.total[:count].should == 8
     stats.total[:weight].should == 617
 
-    ModelHelper3.connect_to(:port => 8379, :db => 13)
-    ModelHelper3.redis.client.db.should == 13
+    ModelHelper3.connect_to(:port => REDIS_PORT, :db => REDIS_DB - 2)
+    ModelHelper3.redis.client.db.should == REDIS_DB - 2
 
     stats = ModelHelper3.fetch("sheep.black", @time.hours_ago(5), @time.hours_since(1), :label_indexing => false)
     stats.total.should == {}
 
-    ModelHelper3.connect_to(:port => 8379, :db => 14)
-    ModelHelper3.redis.client.db.should == 14
+    ModelHelper3.connect_to(:port => REDIS_PORT, :db => REDIS_DB - 1)
+    ModelHelper3.redis.client.db.should == REDIS_DB - 1
 
     stats = ModelHelper3.fetch("sheep.black", @time.hours_ago(5), @time.hours_since(1), :label_indexing => false)
     stats.total[:count].should == 8

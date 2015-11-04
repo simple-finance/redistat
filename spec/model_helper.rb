@@ -18,14 +18,14 @@ end
 class ModelHelper3
   include Redistat::Model
 
-  connect_to :port => 8379, :db => 14
+  connect_to port: REDIS_PORT, db: REDIS_DB - 1
 
 end
 
 class ModelHelper4
   include Redistat::Model
 
-  scope "FancyHelper"
-  expire :hour => 24*3600
+  scope 'FancyHelper'
+  expire hour: 24*3600
 
 end

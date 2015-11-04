@@ -65,44 +65,44 @@ ViewStats.find('hello', 3.hour.ago, 1.hour.from_now).total
 Store page view on product #44 from Chrome 11:
 
 ```ruby
-ViewStats.store('views/product/44', {'count/chrome/11' => 1})
+ViewStats.store('views:product:44', {'count:chrome:11' => 1})
 ```
 
 Fetch product #44 stats:
 
 ```ruby
-ViewStats.find('views/product/44', 23.hours.ago, 1.hour.from_now).total
-  #=> { 'count' => 1, 'count/chrome' => 1, 'count/chrome/11' => 1 }
+ViewStats.find('views:product:44', 23.hours.ago, 1.hour.from_now).total
+  #=> { 'count' => 1, 'count:chrome' => 1, 'count:chrome:11' => 1 }
 ```
 
 Store a page view on product #32 from Firefox 3:
 
 ```ruby
-ViewStats.store('views/product/32', {'count/firefox/3' => 1})
+ViewStats.store('views:product:32', {'count:firefox:3' => 1})
 ```
 
 Fetch product #32 stats:
 
 ```ruby
-ViewStats.find('views/product/32', 23.hours.ago, 1.hour.from_now).total
-  #=> { 'count' => 1, 'count/firefox' => 1, 'count/firefox/3' => 1 }
+ViewStats.find('views:product:32', 23.hours.ago, 1.hour.from_now).total
+  #=> { 'count' => 1, 'count:firefox' => 1, 'count:firefox:3' => 1 }
 ```
 
 Fetch stats for all products:
 
 ```ruby
-ViewStats.find('views/product', 23.hours.ago, 1.hour.from_now).total
+ViewStats.find('views:product', 23.hours.ago, 1.hour.from_now).total
   #=> { 'count'           => 2,
-  #     'count/chrome'    => 1,
-  #     'count/chrome/11' => 1,
-  #     'count/firefox'   => 1,
-  #     'count/firefox/3' => 1 }
+  #     'count:chrome'    => 1,
+  #     'count:chrome:11' => 1,
+  #     'count:firefox'   => 1,
+  #     'count:firefox:3' => 1 }
 ```
 
 Store a 404 error view:
 
 ```ruby
-ViewStats.store('views/error/404', {'count/chrome/9' => 1})
+ViewStats.store('views:error:404', {'count:chrome:9' => 1})
 ```
 
 Fetch stats for all views across the board:
@@ -110,24 +110,24 @@ Fetch stats for all views across the board:
 ```ruby
 ViewStats.find('views', 23.hours.ago, 1.hour.from_now).total
   #=> { 'count'           => 3,
-  #     'count/chrome'    => 2,
-  #     'count/chrome/9'  => 1,
-  #     'count/chrome/11' => 1,
-  #     'count/firefox'   => 1,
-  #     'count/firefox/3' => 1 }
+  #     'count:chrome'    => 2,
+  #     'count:chrome:9'  => 1,
+  #     'count:chrome:11' => 1,
+  #     'count:firefox'   => 1,
+  #     'count:firefox:3' => 1 }
 ```
 
 Fetch list of products known to Redistat:
 
 ```ruby
-finder = ViewStats.find('views/product', 23.hours.ago, 1.hour.from_now)
+finder = ViewStats.find('views:product', 23.hours.ago, 1.hour.from_now)
 finder.children.map { |child| child.label.me }
   #=> [ "32", "44" ]
 finder.children.map { |child| child.label.to_s }
-  #=> [ "views/products/32", "views/products/44" ]
+  #=> [ "views:products:32", "views:products:44" ]
 finder.children.map { |child| child.total }
-  #=> [ { "count" => 1, "count/firefox" => 1, "count/firefox/3" => 1 },
-  #     { "count" => 1, "count/chrome"  => 1, "count/chrome/11" => 1 } ]
+  #=> [ { "count" => 1, "count:firefox" => 1, "count:firefox:3" => 1 },
+  #     { "count" => 1, "count:chrome"  => 1, "count:chrome:11" => 1 } ]
 ```
 
 
@@ -146,10 +146,10 @@ Identifier string to separate different types and groups of statistics from
 each other. The first argument of the `#store`, `#find`, and `#fetch` methods
 is the label that you're storing to, or fetching from.
 
-Labels support multiple grouping levels by splitting the label string with `/`
+Labels support multiple grouping levels by splitting the label string with `:`
 and storing the same stats for each level. For example, when storing data to a
-label called `views/product/44`, the data is stored for the label you specify,
-and also for `views/product` and `views`. You may also configure a different
+label called `views:product:44`, the data is stored for the label you specify,
+and also for `views:product` and `views`. You may also configure a different
 group separator using the `Redistat.group_separator=` method. For example:
 
 ```ruby
@@ -245,34 +245,34 @@ specify are simply passed to the `Redis#expire` method.
 Redistat stores all data into a Redis hash keys. The Redis key name the used
 consists of three parts. The scope, label, and datetime:
 
-    {scope}/{label}:{datetime}
+    {scope}:{label}-{datetime}
 
 For example, this...
 
 ```ruby
-ViewStats.store('views/product/44', {'count/chrome/11' => 1})
+ViewStats.store('views:product:44', {'count:chrome:11' => 1})
 ```
 
 ...would store the follow hash of data...
 
 ```ruby
-{ 'count' => 1, 'count/chrome' => 1, 'count/chrome/11' => 1 }
+{ 'count' => 1, 'count:chrome' => 1, 'count:chrome:11' => 1 }
 ```
 
 ...to all 12 of these Redis hash keys...
 
-    ViewStats/views:2011
-    ViewStats/views:201103
-    ViewStats/views:20110315
-    ViewStats/views:2011031510
-    ViewStats/views/product:2011
-    ViewStats/views/product:201103
-    ViewStats/views/product:20110315
-    ViewStats/views/product:2011031510
-    ViewStats/views/product/44:2011
-    ViewStats/views/product/44:201103
-    ViewStats/views/product/44:20110315
-    ViewStats/views/product/44:2011031510
+    ViewStats:views:2011
+    ViewStats:views:201103
+    ViewStats:views:20110315
+    ViewStats:views:2011031510
+    ViewStats:views:product:2011
+    ViewStats:views:product:201103
+    ViewStats:views:product:20110315
+    ViewStats:views:product:2011031510
+    ViewStats:views:product:44:2011
+    ViewStats:views:product:44:201103
+    ViewStats:views:product:44:20110315
+    ViewStats:views:product:44:2011031510
 
 ...by creating the Redis key, and/or hash field if needed, otherwise it simply
 increments the already existing data.
@@ -280,9 +280,9 @@ increments the already existing data.
 It would also create the following Redis sets to keep track of which child
 labels are available:
 
-    ViewStats.label_index:
-    ViewStats.label_index:views
-    ViewStats.label_index:views/product
+    ViewStats.label_index-
+    ViewStats.label_index-views
+    ViewStats.label_index-views:product
 
 It should now be more obvious to you why you should think about how you use
 the grouping capabilities so you don't go crazy and use 10-15 levels. Storing

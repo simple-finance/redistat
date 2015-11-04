@@ -127,7 +127,7 @@ describe Redistat::Model do
   end
 
   it "should connect to different Redis servers on a per-model basis" do
-    ModelHelper3.redis.client.db.should == REDIS_DB - 1
+    ModelHelper3.redis.client.db.should == REDIS_DB2
 
     ModelHelper3.store("sheep.black", {:count => 6, :weight => 461}, @time.hours_ago(4), :label_indexing => false)
     ModelHelper3.store("sheep.black", {:count => 2, :weight => 156}, @time, :label_indexing => false)
@@ -144,14 +144,14 @@ describe Redistat::Model do
     stats.total[:count].should == 8
     stats.total[:weight].should == 617
 
-    ModelHelper3.connect_to(:port => REDIS_PORT, :db => REDIS_DB - 2)
-    ModelHelper3.redis.client.db.should == REDIS_DB - 2
+    ModelHelper3.connect_to(:port => REDIS_PORT, :db => REDIS_DB3)
+    ModelHelper3.redis.client.db.should == REDIS_DB3
 
     stats = ModelHelper3.fetch("sheep.black", @time.hours_ago(5), @time.hours_since(1), :label_indexing => false)
     stats.total.should == {}
 
-    ModelHelper3.connect_to(:port => REDIS_PORT, :db => REDIS_DB - 1)
-    ModelHelper3.redis.client.db.should == REDIS_DB - 1
+    ModelHelper3.connect_to(:port => REDIS_PORT, :db => REDIS_DB2)
+    ModelHelper3.redis.client.db.should == REDIS_DB2
 
     stats = ModelHelper3.fetch("sheep.black", @time.hours_ago(5), @time.hours_since(1), :label_indexing => false)
     stats.total[:count].should == 8

@@ -18,7 +18,7 @@ end
 class ModelHelper3
   include Redistat::Model
 
-  connect_to port: REDIS_PORT, db: REDIS_DB - 1
+  connect_to port: REDIS_PORT, db: REDIS_DB2
 
 end
 

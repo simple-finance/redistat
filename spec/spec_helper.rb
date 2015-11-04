@@ -16,6 +16,8 @@ require 'rspec/autorun'
 REDIS_HOST = ENV.fetch('REDIS_HOST', 'localhost')
 REDIS_PORT = ENV.fetch('REDIS_PORT', 8379).to_i
 REDIS_DB   = ENV.fetch('REDIS_DB', 15).to_i
+REDIS_DB2   = REDIS_DB > 2 ? (REDIS_DB - 1) : (REDIS_DB + 1)
+REDIS_DB3   = REDIS_DB > 2 ? (REDIS_DB - 2) : (REDIS_DB + 2)
 
 # use the test Redistat instance
 Redistat.connect host: REDIS_HOST, port: REDIS_PORT, db: REDIS_DB, thread_safe: true

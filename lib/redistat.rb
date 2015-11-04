@@ -40,7 +40,7 @@ require 'redistat/core_ext'
 module Redistat
 
   GROUP_SEPARATOR  = ':'.freeze
-  PREFIX_SEPARATOR = '-'.freeze
+  PREFIX_SEPARATOR = ':'.freeze
 
   KEY_NEXT_ID   = '.next_id'.freeze
   KEY_EVENT     = ".event#{PREFIX_SEPARATOR}".freeze

@@ -29,13 +29,13 @@ describe Redistat::Label do
     include Redistat
     label = Label.join('email', 'message', 'public')
     label.should be_a(Label)
-    label.to_s.should == 'email/message/public'
+    label.to_s.should == 'email:message:public'
     label = Label.join(Label.new('email'), Label.new('message'), Label.new('public'))
     label.should be_a(Label)
-    label.to_s.should == 'email/message/public'
+    label.to_s.should == 'email:message:public'
     label = Label.join('email', '', 'message', nil, 'public')
     label.should be_a(Label)
-    label.to_s.should == 'email/message/public'
+    label.to_s.should == 'email:message:public'
   end
 
   it "should allow you to use a different group separator" do
@@ -55,25 +55,25 @@ describe Redistat::Label do
 
   describe "Grouping" do
     before(:each) do
-      @name = "message/public/offensive"
+      @name = "message:public:offensive"
       @label = Redistat::Label.new(@name)
     end
 
     it "should know it's parent label group" do
-      @label.parent.to_s.should == 'message/public'
+      @label.parent.to_s.should == 'message:public'
       Redistat::Label.new('hello').parent.should be_nil
     end
 
     it "should separate label names into groups" do
       @label.name.should == @name
-      @label.groups.map { |l| l.to_s }.should == [ "message/public/offensive",
-                                                   "message/public",
+      @label.groups.map { |l| l.to_s }.should == [ "message:public:offensive",
+                                                   "message:public",
                                                    "message" ]
 
-      @name = "/message/public/"
+      @name = ":message:public:"
       @label = Redistat::Label.new(@name)
       @label.name.should == @name
-      @label.groups.map { |l| l.to_s }.should == [ "message/public",
+      @label.groups.map { |l| l.to_s }.should == [ "message:public",
                                                    "message" ]
 
       @name = "message"

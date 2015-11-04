@@ -22,21 +22,21 @@ describe Redistat::Key do
   end
 
   it "should convert to string properly" do
-    @key.to_s.should == "#{@scope}/#{@label}:#{@key.date.to_s(:hour)}"
+    @key.to_s.should == "#{@scope}:#{@label}-#{@key.date.to_s(:hour)}"
     props = [:year, :month, :day, :hour, :min, :sec]
     props.each do
-      @key.to_s(props.last).should == "#{@scope}/#{@label}:#{@key.date.to_s(props.last)}"
+      @key.to_s(props.last).should == "#{@scope}:#{@label}-#{@key.date.to_s(props.last)}"
       props.pop
     end
     key = Redistat::Key.new(@scope, nil, @date, {:depth => :hour})
-    key.to_s.should == "#{@scope}:#{key.date.to_s(:hour)}"
+    key.to_s.should == "#{@scope}-#{key.date.to_s(:hour)}"
   end
 
   it "should abide to hashed_label option" do
     @key = Redistat::Key.new(@scope, @label, @date, {:depth => :hour, :hashed_label => true})
-    @key.to_s.should == "#{@scope}/#{@label_hash}:#{@key.date.to_s(:hour)}"
+    @key.to_s.should == "#{@scope}:#{@label_hash}-#{@key.date.to_s(:hour)}"
     @key = Redistat::Key.new(@scope, @label, @date, {:depth => :hour, :hashed_label => false})
-    @key.to_s.should == "#{@scope}/#{@label}:#{@key.date.to_s(:hour)}"
+    @key.to_s.should == "#{@scope}:#{@label}-#{@key.date.to_s(:hour)}"
   end
 
   it "should have default depth option" do
@@ -67,14 +67,14 @@ describe Redistat::Key do
 
   describe "Grouping" do
     before(:each) do
-      @label = "message/public/offensive"
+      @label = "message:public:offensive"
       @key = Redistat::Key.new(@scope, @label, @date, {:depth => :hour})
     end
 
     it "should create a group of keys from label group" do
-      label = 'message/public/offensive'
-      result = [ "message/public/offensive",
-                 "message/public",
+      label = 'message:public:offensive'
+      result = [ "message:public:offensive",
+                 "message:public",
                  "message" ]
 
       key = Redistat::Key.new(@scope, label, @date, {:depth => :hour})
@@ -84,7 +84,7 @@ describe Redistat::Key do
 
     it "should know it's parent" do
       @key.parent.should be_a(Redistat::Key)
-      @key.parent.label.to_s.should == 'message/public'
+      @key.parent.label.to_s.should == 'message:public'
       Redistat::Key.new(@scope, 'hello', @date).parent.should be_nil
     end
 
@@ -92,11 +92,11 @@ describe Redistat::Key do
       db.smembers("#{@scope}#{Redistat::LABEL_INDEX}#{@key.label.parent}").should == []
       @key.children.should have(0).items
 
-      @key.update_index                                                  # indexing 'message/publish/offensive'
-      Redistat::Key.new("PageViews", "message/public/die").update_index  # indexing 'message/publish/die'
-      Redistat::Key.new("PageViews", "message/public/live").update_index # indexing 'message/publish/live'
+      @key.update_index                                                  # indexing 'message:publish:offensive'
+      Redistat::Key.new("PageViews", "message:public:die").update_index  # indexing 'message:publish:die'
+      Redistat::Key.new("PageViews", "message:public:live").update_index # indexing 'message:publish:live'
 
-      members = db.smembers("#{@scope}#{Redistat::LABEL_INDEX}#{@key.label.parent}") # checking 'message/public'
+      members = db.smembers("#{@scope}#{Redistat::LABEL_INDEX}#{@key.label.parent}") # checking 'message:public'
       members.should have(3).item
       members.should include('offensive')
       members.should include('live')

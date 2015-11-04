@@ -90,27 +90,27 @@ describe Redistat::Model do
   end
 
   it "should store and fetch grouping enabled stats" do
-    ModelHelper1.store("sheep/black", {:count => 6, :weight => 461}, @time.hours_ago(4))
-    ModelHelper1.store("sheep/black", {:count => 2, :weight => 156}, @time)
-    ModelHelper1.store("sheep/white", {:count => 5, :weight => 393}, @time.hours_ago(4))
-    ModelHelper1.store("sheep/white", {:count => 4, :weight => 316}, @time)
+    ModelHelper1.store("sheep:black", {:count => 6, :weight => 461}, @time.hours_ago(4))
+    ModelHelper1.store("sheep:black", {:count => 2, :weight => 156}, @time)
+    ModelHelper1.store("sheep:white", {:count => 5, :weight => 393}, @time.hours_ago(4))
+    ModelHelper1.store("sheep:white", {:count => 4, :weight => 316}, @time)
 
-    stats = ModelHelper1.fetch("sheep/black", @time.hours_ago(2), @time.hours_since(1))
+    stats = ModelHelper1.fetch("sheep:black", @time.hours_ago(2), @time.hours_since(1))
     stats.total["count"].should == 2
     stats.total["weight"].should == 156
     stats.first.should == stats.total
 
-    stats = ModelHelper1.fetch("sheep/black", @time.hours_ago(5), @time.hours_since(1))
+    stats = ModelHelper1.fetch("sheep:black", @time.hours_ago(5), @time.hours_since(1))
     stats.total[:count].should == 8
     stats.total[:weight].should == 617
     stats.first.should == stats.total
 
-    stats = ModelHelper1.fetch("sheep/white", @time.hours_ago(2), @time.hours_since(1))
+    stats = ModelHelper1.fetch("sheep:white", @time.hours_ago(2), @time.hours_since(1))
     stats.total[:count].should == 4
     stats.total[:weight].should == 316
     stats.first.should == stats.total
 
-    stats = ModelHelper1.fetch("sheep/white", @time.hours_ago(5), @time.hours_since(1))
+    stats = ModelHelper1.fetch("sheep:white", @time.hours_ago(5), @time.hours_since(1))
     stats.total[:count].should == 9
     stats.total[:weight].should == 709
     stats.first.should == stats.total

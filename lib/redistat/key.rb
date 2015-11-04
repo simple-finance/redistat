@@ -11,19 +11,20 @@ module Redistat
       parse_options(opts)
       self.scope = scope
       self.label = label_name if !label_name.nil?
-      self.date = time_stamp ||= Time.now
+      self.date  = time_stamp ||= Time.now
     end
 
     def prefix
       key = "#{@scope}"
-      key << "/#{label.name}" if !label.nil?
-      key << ":"
+      key << "#{Redistat.group_separator}#{label.name}" if !label.nil?
+      key << Redistat.prefix_separator
       key
     end
 
     def date=(input)
       @date = (input.instance_of?(Redistat::Date)) ? input : Date.new(input) # Redistat::Date, not ::Date
     end
+
     attr_reader :date
 
     def depth
@@ -37,11 +38,13 @@ module Redistat
     def scope=(input)
       @scope = (input.instance_of?(Redistat::Scope)) ? input : Scope.new(input)
     end
+
     attr_reader :scope
 
     def label=(input)
       @label = (input.instance_of?(Redistat::Label)) ? input : Label.create(input, @options)
     end
+
     attr_reader :label
 
     def label_hash
@@ -75,7 +78,7 @@ module Redistat
 
     def to_s(depth = nil)
       depth ||= @options[:depth]
-      key = self.prefix
+      key   = self.prefix
       key << @date.to_s(depth)
       key
     end

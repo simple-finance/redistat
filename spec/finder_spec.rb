@@ -101,7 +101,7 @@ describe Redistat::Finder do
 
   describe "Grouping" do
     before(:each) do
-      @options = {:scope => "PageViews", :label => "message/public", :from => @two_hours_ago, :till => @one_hour_ago, :depth => :hour, :interval => :hour}
+      @options = {:scope => "PageViews", :label => "message:public", :from => @two_hours_ago, :till => @one_hour_ago, :depth => :hour, :interval => :hour}
       @finder = Redistat::Finder.new(@options)
     end
 
@@ -118,9 +118,9 @@ describe Redistat::Finder do
     end
 
     it "should find children" do
-      Redistat::Key.new("PageViews", "message/public/die").update_index
-      Redistat::Key.new("PageViews", "message/public/live").update_index
-      Redistat::Key.new("PageViews", "message/public/fester").update_index
+      Redistat::Key.new("PageViews", "message:public:die").update_index
+      Redistat::Key.new("PageViews", "message:public:live").update_index
+      Redistat::Key.new("PageViews", "message:public:fester").update_index
       members = db.smembers("#{@scope}#{Redistat::LABEL_INDEX}message/public") # checking 'message/public'
       @finder.children.first.should be_a(Redistat::Finder)
       subs = @finder.children.map { |f| f.options[:label].me }

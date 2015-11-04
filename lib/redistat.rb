@@ -1,4 +1,3 @@
-
 require 'rubygems'
 require 'date'
 require 'time'
@@ -40,15 +39,19 @@ require 'redistat/core_ext'
 
 module Redistat
 
-  KEY_NEXT_ID = ".next_id"
-  KEY_EVENT = ".event:"
-  KEY_LABELS = "Redistat.labels:" # used for reverse label hash lookup
-  KEY_EVENT_IDS = ".event_ids"
-  LABEL_INDEX = ".label_index:"
-  GROUP_SEPARATOR = "/"
+  GROUP_SEPARATOR  = ':'.freeze
+  PREFIX_SEPARATOR = '-'.freeze
 
-  class InvalidOptions < ArgumentError; end
-  class RedisServerIsTooOld < Exception; end
+  KEY_NEXT_ID   = '.next_id'.freeze
+  KEY_EVENT     = ".event#{PREFIX_SEPARATOR}".freeze
+  KEY_LABELS    = "Redistat.labels#{PREFIX_SEPARATOR}".freeze # used for reverse label hash lookup
+  KEY_EVENT_IDS = '.event_ids'.freeze
+  LABEL_INDEX   = ".label_index#{PREFIX_SEPARATOR}".freeze
+
+  class InvalidOptions < ArgumentError
+  end
+  class RedisServerIsTooOld < Exception
+  end
 
   class << self
 
@@ -75,11 +78,13 @@ module Redistat
     def connection(ref = nil)
       Connection.get(ref)
     end
+
     alias :redis :connection
 
     def connection=(connection)
       Connection.add(connection)
     end
+
     alias :redis= :connection=
 
     def connect(options)
@@ -92,8 +97,15 @@ module Redistat
     end
 
     def group_separator
-      @group_separator ||= GROUP_SEPARATOR
+      @group_separator || GROUP_SEPARATOR
     end
+
+    attr_writer :group_separator
+
+    def prefix_separator
+      @prefix_separator || PREFIX_SEPARATOR
+    end
+
     attr_writer :group_separator
 
     ObjectSpace.define_finalizer(self, proc { Redistat.buffer.flush (true) })

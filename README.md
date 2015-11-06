@@ -1,4 +1,6 @@
-# Redistat [![Build Status](https://secure.travis-ci.org/jimeh/redistat.png)](http://travis-ci.org/jimeh/redistat)
+[![Build Status](https://travis-ci.org/simple-finance/redistat.svg?branch=master)](https://travis-ci.org/simple-finance/redistat)
+
+# Redistat
 
 A Redis-backed statistics storage and querying library written in Ruby.
 
